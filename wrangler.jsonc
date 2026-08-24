@@ -1,0 +1,9 @@
+{
+  "name": "risolvi",
+  "main": "./worker.js",
+  "compatibility_date": "2026-08-24",
+  "d1_databases": [
+    { "binding": "DB" }
+  ],
+  "observability": { "enabled": true }
+}
