@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="format-detection" content="telephone=no">
-<title>RISOLVI V6 — Semplice per tutti</title>
+<title>RISOLVI V7 — Case Intelligence</title>
 <style>
 :root{
   --bg:#06101b;--bg2:#0a1524;--card:#0f1c2e;--card2:#14243a;--card3:#182b44;
@@ -121,6 +121,9 @@ button,.btn,.tile,.quickchip,.iconbtn,.toolbtn,.reasonbtn,.wtpbtn{touch-action:m
 .freecost{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(97,230,168,.22);background:rgba(97,230,168,.06);color:var(--green);border-radius:999px;padding:7px 10px;font-size:10px;font-weight:900}
 @media(max-width:540px){.howgrid,.honestproof{grid-template-columns:1fr}.buyclarity{grid-template-columns:1fr}.guidechoices{grid-template-columns:1fr}.segmented{grid-template-columns:1fr 1fr 1fr}}
 
+
+/* RISOLVI_CASE_UI_V7 */
+.ci-wrap{margin-top:14px}.ci-hero,.ci-card{border:1px solid var(--line);background:linear-gradient(155deg,var(--card),var(--card2));border-radius:20px;padding:15px;box-shadow:var(--shadow2)}.ci-hero{border-color:rgba(126,176,255,.26);background:linear-gradient(150deg,rgba(29,48,72,.82),var(--card))}.ci-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.ci-kicker{font-size:9px;font-weight:950;letter-spacing:.12em;color:var(--blue);text-transform:uppercase}.ci-title{font-size:18px;font-weight:950;letter-spacing:-.02em;margin-top:4px}.ci-score{text-align:right;min-width:74px}.ci-score b{display:block;font-size:30px;letter-spacing:-.05em}.ci-score span{font-size:9px;color:var(--muted)}.ci-bar{height:7px;border-radius:999px;background:var(--card3);overflow:hidden;margin-top:11px}.ci-bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--red),var(--amber),var(--green))}.ci-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.ci-metric{border:1px solid var(--line);border-radius:13px;padding:10px;background:rgba(255,255,255,.025)}.ci-metric span{display:block;font-size:8px;color:var(--muted);text-transform:uppercase}.ci-metric b{display:block;font-size:17px;margin-top:4px}.ci-badge{display:inline-flex;margin-top:7px;border-radius:999px;padding:5px 8px;font-size:8px;font-weight:950;letter-spacing:.08em;border:1px solid var(--line)}.ci-badge.PRONTA{color:var(--green);border-color:rgba(97,230,168,.28)}.ci-badge.PARZIALE{color:var(--amber);border-color:rgba(255,210,110,.28)}.ci-badge.INCOMPLETA{color:var(--red);border-color:rgba(255,131,137,.28)}.ci-card{margin-top:9px}.ci-card h3{margin:0;font-size:14px}.ci-card p{font-size:11px;color:var(--muted);line-height:1.45}.ci-list{margin-top:8px}.ci-row{display:flex;gap:9px;align-items:flex-start;border-top:1px solid var(--line);padding:10px 0}.ci-row:first-child{border-top:0}.ci-dot{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:var(--card3);font-size:9px;flex:none}.ci-copy b{display:block;font-size:11px}.ci-copy span{display:block;font-size:10px;color:var(--muted);margin-top:3px;line-height:1.35}.ci-alert{margin-top:9px;border:1px solid rgba(255,210,110,.26);background:rgba(255,210,110,.06);color:#f4ddb1;border-radius:13px;padding:10px;font-size:10px;line-height:1.4}.ci-trust{margin-top:9px;border-top:1px dashed var(--line);padding-top:9px;color:var(--muted);font-size:9px;line-height:1.4}.ci-casegrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:9px}.ci-mini{border:1px solid var(--line);border-radius:12px;padding:9px;background:var(--card2)}.ci-mini span{display:block;font-size:8px;color:var(--muted)}.ci-mini b{display:block;font-size:18px;margin-top:4px}@media(max-width:540px){.ci-grid{grid-template-columns:1fr 1fr 1fr}.ci-casegrid{grid-template-columns:1fr 1fr}.ci-title{font-size:16px}.ci-score b{font-size:26px}}
 </style>
 </head>
 <body>
@@ -132,7 +135,7 @@ button,.btn,.tile,.quickchip,.iconbtn,.toolbtn,.reasonbtn,.wtpbtn{touch-action:m
     <p>Rimborsi, addebiti, disdette, acquisti, viaggi e bollette. Scrivi, parla oppure fatti guidare: RISOLVI è pensata per essere usata senza istruzioni.</p>
     <button class="btn primary full" onclick="App.finishOnboarding()">INIZIA GRATIS</button>
     <button class="btn secondary full" style="margin-top:8px" onclick="App.startEasy()">MODALITÀ FACILE · TESTO GRANDE</button>
-    <div class="mini">V6 Universal Beta · nessun addebito reale · nessun account · Privacy Shield attivo.</div>
+    <div class="mini">V7 Case Intelligence Beta · nessun addebito reale · nessun account · Privacy Shield attivo.</div>
   </div>
 </div>
 
@@ -375,7 +378,7 @@ button,.btn,.tile,.quickchip,.iconbtn,.toolbtn,.reasonbtn,.wtpbtn{touch-action:m
 <script>
 'use strict';
 const App=(()=>{
-  const VERSION='6.0.0-universal-beta';
+  const VERSION='7.0.0-case-intelligence';
   const DBKEY='risolvi_v6_state', LEGACYKEY='risolvi_v5_state';
   const MAX_CASES=100, MAX_WATCHES=100, MAX_TEXT=4000, MAX_BETA_EVENTS=300, MAX_BETA_FEEDBACK=80;
   const ACCESS_TEXT=['normal','large','xlarge'];
@@ -852,6 +855,10 @@ const App=(()=>{
     const el=$('devTests');el.classList.remove('hidden');el.innerHTML=`<div class="label">DIAGNOSTICA INTERNA</div><h3 style="margin-top:5px">${tests.filter(t=>t.ok).length}/${tests.length} test passati</h3>${tests.map(t=>`<div class="${t.ok?'testpass':'testfail'}">${t.ok?'✓':'✗'} ${esc(t.name)}</div>`).join('')}`;
   }
 
+  function getIntelligenceState(){
+    return {state:JSON.parse(JSON.stringify(state)),currentAnalysis:currentAnalysis?JSON.parse(JSON.stringify(currentAnalysis)):null,rulesUpdated:RULES_UPDATED};
+  }
+
   function init(){
     setTheme(state.theme||'dark');applyAccess();syncPrivacyUI();
     const params=new URLSearchParams(location.search);
@@ -864,8 +871,87 @@ const App=(()=>{
     window.addEventListener('unhandledrejection',()=>toast('Operazione non completata. Riprova.'));
   }
   document.addEventListener('DOMContentLoaded',init);
-  return {VERSION,finishOnboarding,startEasy,toggleTheme,installHint,openAccess,closeAccess,accessBackdrop,toggleSimple,setTextSize,toggleContrast,readPage,readAnalysis,stopReading,openGuide,closeGuide,guideBackdrop,guidePick,backupEncrypted,restoreEncrypted,openPrivacy,closePrivacy,privacyBackdrop,togglePrivacy,toggleDiscreet,exportData,clearAllData,showPage,example,voiceInput,handleFile,analyzeText,openFlow,genericFlow,calcGeneric,calcTrain,calcFlight,calcPurchase,calcCancel,calcCharge,openCheckout,closeCheckout,modalBackdrop,pay,openCase,toggleTask,saveDraft,copyDraft,markSent,exportDossier,shareCase,markSolved,deleteCase,addWatch,downloadICS,deleteWatch,runDiagnostics,brandTap,openFounder,closeFounder,founderBackdrop,shareBetaReport,exportBetaReport,resetBetaLab,openBetaFeedback,betaBackdrop,betaReason,betaWTP,submitBetaFeedback,skipBetaFeedback};
+  return {VERSION,getIntelligenceState,finishOnboarding,startEasy,toggleTheme,installHint,openAccess,closeAccess,accessBackdrop,toggleSimple,setTextSize,toggleContrast,readPage,readAnalysis,stopReading,openGuide,closeGuide,guideBackdrop,guidePick,backupEncrypted,restoreEncrypted,openPrivacy,closePrivacy,privacyBackdrop,togglePrivacy,toggleDiscreet,exportData,clearAllData,showPage,example,voiceInput,handleFile,analyzeText,openFlow,genericFlow,calcGeneric,calcTrain,calcFlight,calcPurchase,calcCancel,calcCharge,openCheckout,closeCheckout,modalBackdrop,pay,openCase,toggleTask,saveDraft,copyDraft,markSent,exportDossier,shareCase,markSolved,deleteCase,addWatch,downloadICS,deleteWatch,runDiagnostics,brandTap,openFounder,closeFounder,founderBackdrop,shareBetaReport,exportBetaReport,resetBetaLab,openBetaFeedback,betaBackdrop,betaReason,betaWTP,submitBetaFeedback,skipBetaFeedback};
 })();
+</script>
+
+<script id="risolvi-case-core-v7">
+(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;root.RisolviCaseCore=api;})(typeof globalThis!=='undefined'?globalThis:this,function(){
+'use strict';
+const clamp=n=>Math.max(0,Math.min(100,Math.round(Number(n)||0)));
+const txt=v=>String(v??'').trim();
+const EVIDENCE={
+ train:['Biglietto / PNR','Orario previsto e orario effettivo','Prezzo pagato','Eventuali comunicazioni del vettore'],
+ flight:['Prenotazione e numero volo','Carta d’imbarco se disponibile','Orario effettivo / cancellazione','Ricevute di spese collegate se rilevanti'],
+ 'flight-bag':['Tag bagaglio / PIR se disponibile','Prenotazione e carta d’imbarco','Ricevute spese essenziali','Comunicazioni della compagnia'],
+ purchase:['Ordine / scontrino / fattura','Identità del venditore','Tracking o foto/video del problema','Messaggi già scambiati con il venditore'],
+ charge:['Fattura o prova dell’addebito','Contratto / condizioni applicabili','Disdetta o comunicazione precedente se rilevante','Reclamo e risposta ricevuta'],
+ cancel:['Contratto / condizioni','Data di rinnovo o preavviso','Prova dell’invio della disdetta','Fattura successiva / conferma cessazione'],
+ generic:['Controparte identificata','Documento principale','Data del fatto','Importo e risultato richiesto']
+};
+function evidenceFor(type){return (EVIDENCE[type]||EVIDENCE.generic).slice();}
+function ladderFor(type,source){
+ const src=source&&source.name?`Canale ufficiale: ${source.name}`:'Individua il canale ufficiale competente';
+ if(type==='charge')return ['Reclamo scritto alla controparte',src,'Valuta assistenza umana se la controversia resta irrisolta'];
+ if(type==='flight'||type==='flight-bag')return ['Richiesta documentata al vettore',src,'Escalation/assistenza qualificata se necessaria'];
+ if(type==='train')return ['Richiesta al vettore tramite procedura ufficiale',src,'Follow-up o assistenza consumatori se non si risolve'];
+ if(type==='purchase')return ['Richiesta scritta al venditore',src,'ADR/assistenza consumatori o professionale se necessario'];
+ if(type==='cancel')return ['Disdetta tracciabile secondo contratto','Verifica conferma e fattura successiva','Escalation di settore o assistenza se la cessazione non viene recepita'];
+ return ['Raccogli i fatti minimi','Individua procedura e fonte ufficiale','Passa a revisione umana se il caso resta ambiguo'];
+}
+function assessAnalysis(a={}){
+ const completeness=clamp(a.completeness),urgency=clamp(a.urgency),complexity=clamp(a.complexity);
+ const sourceBonus=a.source&&a.source.name?8:0;
+ const readiness=clamp(completeness*.72+(100-complexity)*.20+sourceBonus);
+ const label=readiness>=75?'PRONTA':readiness>=50?'PARZIALE':'INCOMPLETA';
+ const humanReview=complexity>=70||completeness<35||txt(a.type)==='generic';
+ const evidence=evidenceFor(a.type);
+ const next=(Array.isArray(a.steps)&&a.steps[0])?{title:txt(a.steps[0].title),text:txt(a.steps[0].text)}:{title:'Completa i dati mancanti',text:'Prima di procedere raccogli documento, data, controparte e obiettivo.'};
+ return {readiness,label,completeness,urgency,complexity,humanReview,evidence,next,ladder:ladderFor(a.type,a.source),source:a.source||null,rulesUpdated:'2026-08-24',trust:'La readiness misura la preparazione procedurale della pratica, non la probabilità di successo.'};
+}
+function assessCase(c={}){
+ const steps=Array.isArray(c.steps)?c.steps:[],done=steps.filter(s=>s.done).length;
+ const taskCompletion=steps.length?Math.round(done/steps.length*100):35;
+ const hasSource=!!(c.source&&c.source.name),hasDraft=!!txt(c.draft),hasAmount=Number(c.amount)>0;
+ const readiness=clamp(taskCompletion*.55+(hasSource?18:0)+(hasDraft?17:0)+(hasAmount?10:0));
+ const next=steps.find(s=>!s.done);
+ return {id:c.id,title:txt(c.title)||'Pratica',readiness,label:readiness>=75?'PRONTA':readiness>=50?'PARZIALE':'INCOMPLETA',next:next?{title:txt(next.title),text:txt(next.text)}:{title:'Follow-up',text:'Tutte le attività registrate risultano completate: verifica risposta/esito e aggiorna lo stato.'},status:txt(c.status),humanReview:txt(c.type)==='generic'};
+}
+function summarizeCases(cases=[]){const items=cases.map(assessCase);return {total:items.length,open:items.filter(x=>!['Risolta','closed','solved'].includes(x.status)).length,lowReadiness:items.filter(x=>x.readiness<50).length,ready:items.filter(x=>x.readiness>=75).length,items:items.sort((a,b)=>a.readiness-b.readiness)};}
+return {assessAnalysis,assessCase,summarizeCases,evidenceFor,ladderFor};
+});
+
+</script>
+<script id="risolvi-case-intelligence-v7">
+(function(){
+'use strict';
+const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+function intel(){try{return App.getIntelligenceState()}catch(e){return null}}
+function row(n,title,text){return `<div class="ci-row"><i class="ci-dot">${esc(n)}</i><div class="ci-copy"><b>${esc(title)}</b><span>${esc(text||'')}</span></div></div>`}
+function renderAnalysis(){
+ const host=document.getElementById('flowContent');if(!host||host.closest('.hidden'))return;
+ const x=intel(),a=x&&x.currentAnalysis;if(!a||typeof RisolviCaseCore==='undefined'){document.getElementById('ci-current')?.remove();return}
+ const r=RisolviCaseCore.assessAnalysis(a),e=r.evidence||[],lad=r.ladder||[];
+ const html=`<section id="ci-current" class="ci-wrap"><div class="ci-hero"><div class="ci-head"><div><div class="ci-kicker">CASE INTELLIGENCE · V7</div><div class="ci-title">Quanto è pronta questa pratica?</div><span class="ci-badge ${esc(r.label)}">${esc(r.label)}</span></div><div class="ci-score"><b>${esc(r.readiness)}%</b><span>readiness</span></div></div><div class="ci-bar"><i style="width:${esc(r.readiness)}%"></i></div><div class="ci-grid"><div class="ci-metric"><span>Completezza</span><b>${esc(r.completeness)}%</b></div><div class="ci-metric"><span>Urgenza</span><b>${esc(r.urgency)}%</b></div><div class="ci-metric"><span>Complessità</span><b>${esc(r.complexity)}%</b></div></div><div class="ci-trust">${esc(r.trust)}</div></div>
+ <div class="ci-card"><h3>Prossima azione</h3><p><b>${esc(r.next.title)}</b><br>${esc(r.next.text)}</p></div>
+ <div class="ci-card"><h3>Prove da avere</h3><div class="ci-list">${e.map((v,i)=>row(i+1,v,'Da verificare/raccogliere se rilevante per il caso concreto.')).join('')}</div></div>
+ <div class="ci-card"><h3>Scala di escalation</h3><div class="ci-list">${lad.map((v,i)=>row(i+1,v,i===0?'Parti dal livello meno oneroso e più tracciabile.':i===lad.length-1?'Solo se i passaggi precedenti non bastano.':'Usa il canale ufficiale appropriato.')).join('')}</div>${r.humanReview?'<div class="ci-alert"><b>REVISIONE UMANA CONSIGLIATA</b><br>Il caso è complesso o incompleto: RISOLVI non deve trasformare l’automazione in una falsa certezza.</div>':''}<div class="ci-trust">Fonti/regole prodotto controllate: ${esc(r.rulesUpdated)}. La fonte specifica del caso resta quella mostrata nella diagnosi.</div></div></section>`;
+ const old=document.getElementById('ci-current');if(old)old.outerHTML=html;else host.insertAdjacentHTML('beforeend',html);
+}
+function renderCases(){
+ const page=document.getElementById('page-cases');if(!page||page.classList.contains('hidden')||typeof RisolviCaseCore==='undefined')return;
+ const x=intel();if(!x||!x.state)return;
+ const s=RisolviCaseCore.summarizeCases(x.state.cases||[]),top=s.items.slice(0,3);
+ const html=`<section id="ci-case-command" class="ci-wrap"><div class="ci-card"><div class="ci-kicker">CASE CONTROL CENTER</div><div class="ci-title">Le pratiche che richiedono attenzione</div><div class="ci-casegrid"><div class="ci-mini"><span>Aperte</span><b>${esc(s.open)}</b></div><div class="ci-mini"><span>Pronte</span><b>${esc(s.ready)}</b></div><div class="ci-mini"><span>Da completare</span><b>${esc(s.lowReadiness)}</b></div><div class="ci-mini"><span>Totali</span><b>${esc(s.total)}</b></div></div>${top.length?`<div class="ci-list">${top.map((c,i)=>row(i+1,`${c.title} · ${c.readiness}%`,`Prossimo: ${c.next.title}`)).join('')}</div>`:'<p>Nessuna pratica ancora da ordinare.</p>'}<div class="ci-trust">Priorità basata sulla preparazione della pratica e sulle attività mancanti, non sulla probabilità di ottenere un rimborso.</div></div></section>`;
+ const old=document.getElementById('ci-case-command');if(old)old.outerHTML=html;else{const hero=page.querySelector('.hero');if(hero)hero.insertAdjacentHTML('afterend',html);else page.insertAdjacentHTML('afterbegin',html)}
+}
+function render(){renderAnalysis();renderCases()}
+const obs=new MutationObserver(()=>setTimeout(render,0));
+document.addEventListener('DOMContentLoaded',()=>{obs.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});render()});
+window.addEventListener('storage',render);
+setInterval(render,3000);
+})();
+
 </script>
 </body>
 </html>
