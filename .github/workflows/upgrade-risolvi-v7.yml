@@ -1,0 +1,59 @@
+name: Upgrade RISOLVI V7
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/risolvi-case-core.js"
+      - "src/risolvi-case-ui.css"
+      - "src/risolvi-case-intelligence.js"
+      - "tests/risolvi-case-core.test.cjs"
+      - "scripts/upgrade_risolvi_v7.py"
+      - ".github/workflows/upgrade-risolvi-v7.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: risolvi-v7-upgrade
+  cancel-in-progress: false
+
+jobs:
+  upgrade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Apply guarded migration and sync Worker shell
+        run: python scripts/upgrade_risolvi_v7.py
+      - name: Regression tests
+        run: node tests/risolvi-case-core.test.cjs
+      - name: Syntax and contract checks
+        run: |
+          node --check src/risolvi-case-core.js
+          node --check src/risolvi-case-intelligence.js
+          node --check worker.js
+          grep -q 'RISOLVI V7 — Case Intelligence' index.html
+          grep -q 'getIntelligenceState' index.html
+          grep -q 'RISOLVI_CASE_UI_V7' worker.js
+          grep -q '2026-08-28.1' worker.js
+          git diff --check
+      - name: Publish tested RISOLVI V7
+        run: |
+          if git diff --quiet; then
+            echo 'No migration changes to publish'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html worker.js
+          git commit -m 'RISOLVI V7 — case intelligence and guided escalation'
+          git push origin HEAD:main
