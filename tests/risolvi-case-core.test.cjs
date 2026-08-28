@@ -1,0 +1,16 @@
+const assert=require('assert');
+const core=require('../src/risolvi-case-core.js');
+let a=core.assessAnalysis({type:'charge',completeness:82,urgency:80,complexity:45,source:{name:'AGCOM'},steps:[{title:'Salva prova',text:'Fattura'}]});
+assert(a.readiness>=70);
+assert.equal(a.next.title,'Salva prova');
+assert(a.evidence.includes('Fattura o prova dell’addebito'));
+assert(a.ladder.length===3);
+assert(/non la probabilità di successo/.test(a.trust));
+let g=core.assessAnalysis({type:'generic',completeness:20,urgency:40,complexity:80,steps:[]});
+assert.equal(g.label,'INCOMPLETA');
+assert.equal(g.humanReview,true);
+const s=core.summarizeCases([{id:'1',title:'A',status:'Sbloccata',type:'charge',amount:50,source:{name:'AGCOM'},draft:'testo',steps:[{title:'x',text:'y',done:false}]},{id:'2',title:'B',status:'Risolta',type:'purchase',steps:[{title:'x',done:true}]}]);
+assert.equal(s.total,2);
+assert.equal(s.open,1);
+assert(s.items[0].readiness<=s.items[1].readiness);
+console.log('RISOLVI Case Intelligence regression tests: OK');
