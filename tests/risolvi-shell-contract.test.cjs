@@ -16,7 +16,7 @@ assert(index.includes('getIntelligenceState'));
 assert(worker.includes('RISOLVI_CASE_UI_V7'));
 
 // Avoid accidental duplication of the injected command centers.
-assert.equal((intel.match(/id=\\"ci-current\\"/g)||[]).length,1);
-assert.equal((intel.match(/id=\\"ci-case-command\\"/g)||[]).length,1);
+assert.equal((intel.match(/id="ci-current"/g)||[]).length,1);
+assert.equal((intel.match(/id="ci-case-command"/g)||[]).length,1);
 
 console.log('RISOLVI shell contract tests: OK');
