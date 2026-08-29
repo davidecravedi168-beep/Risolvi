@@ -21,15 +21,17 @@ function ladderFor(type,source){
  if(type==='cancel')return ['Disdetta tracciabile secondo contratto','Verifica conferma e fattura successiva','Escalation di settore o assistenza se la cessazione non viene recepita'];
  return ['Raccogli i fatti minimi','Individua procedura e fonte ufficiale','Passa a revisione umana se il caso resta ambiguo'];
 }
+function priorityLabel(n){return n>=75?'IMMEDIATA':n>=55?'ALTA':n>=35?'MEDIA':'BASSA';}
 function assessAnalysis(a={}){
  const completeness=clamp(a.completeness),urgency=clamp(a.urgency),complexity=clamp(a.complexity);
  const sourceBonus=a.source&&a.source.name?8:0;
  const readiness=clamp(completeness*.72+(100-complexity)*.20+sourceBonus);
+ const priority=clamp(urgency*.45+(100-readiness)*.35+complexity*.20);
  const label=readiness>=75?'PRONTA':readiness>=50?'PARZIALE':'INCOMPLETA';
  const humanReview=complexity>=70||completeness<35||txt(a.type)==='generic';
  const evidence=evidenceFor(a.type);
  const next=(Array.isArray(a.steps)&&a.steps[0])?{title:txt(a.steps[0].title),text:txt(a.steps[0].text)}:{title:'Completa i dati mancanti',text:'Prima di procedere raccogli documento, data, controparte e obiettivo.'};
- return {readiness,label,completeness,urgency,complexity,humanReview,evidence,next,ladder:ladderFor(a.type,a.source),source:a.source||null,rulesUpdated:'2026-08-24',trust:'La readiness misura la preparazione procedurale della pratica, non la probabilità di successo.'};
+ return {readiness,label,priority,priorityLabel:priorityLabel(priority),completeness,urgency,complexity,humanReview,evidence,next,ladder:ladderFor(a.type,a.source),source:a.source||null,rulesUpdated:'2026-08-29',readinessFormula:'0,72×completezza + 0,20×(100−complessità) + 8 se esiste una fonte identificata',priorityFormula:'0,45×urgenza + 0,35×gap di readiness + 0,20×complessità',trust:'La readiness misura la preparazione procedurale della pratica, non la probabilità di successo.'};
 }
 function assessCase(c={}){
  const steps=Array.isArray(c.steps)?c.steps:[],done=steps.filter(s=>s.done).length;
