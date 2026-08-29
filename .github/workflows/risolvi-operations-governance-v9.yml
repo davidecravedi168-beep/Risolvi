@@ -1,0 +1,33 @@
+name: RISOLVI Operations Governance V9
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/risolvi-operations-governance-v9.js'
+      - 'scripts/upgrade_operations_governance_v9.py'
+      - '.github/workflows/risolvi-operations-governance-v9.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: python scripts/upgrade_operations_governance_v9.py
+      - run: node --check src/risolvi-operations-governance-v9.js
+      - run: |
+          grep -q 'risolvi-operations-governance-v9.js?v=9.0' index.html
+          grep -q 'OPERATIONS GOVERNANCE' src/risolvi-operations-governance-v9.js
+          git diff --check
+      - run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'RISOLVI V9 — wire operations governance'
+          git push origin HEAD:main
