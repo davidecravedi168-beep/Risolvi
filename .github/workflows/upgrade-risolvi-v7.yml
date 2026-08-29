@@ -8,6 +8,17 @@ on:
       - "src/risolvi-case-ui.css"
       - "src/risolvi-case-intelligence.js"
       - "tests/risolvi-case-core.test.cjs"
+      - "tests/risolvi-shell-contract.test.cjs"
+      - "scripts/upgrade_risolvi_v7.py"
+      - ".github/workflows/upgrade-risolvi-v7.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/risolvi-case-core.js"
+      - "src/risolvi-case-ui.css"
+      - "src/risolvi-case-intelligence.js"
+      - "tests/risolvi-case-core.test.cjs"
+      - "tests/risolvi-shell-contract.test.cjs"
       - "scripts/upgrade_risolvi_v7.py"
       - ".github/workflows/upgrade-risolvi-v7.yml"
   workflow_dispatch:
@@ -16,7 +27,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: risolvi-v7-upgrade
+  group: risolvi-v7-upgrade-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -24,8 +35,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-        with:
-          ref: main
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -35,7 +44,9 @@ jobs:
       - name: Apply guarded migration and sync Worker shell
         run: python scripts/upgrade_risolvi_v7.py
       - name: Regression tests
-        run: node tests/risolvi-case-core.test.cjs
+        run: |
+          node tests/risolvi-case-core.test.cjs
+          node tests/risolvi-shell-contract.test.cjs
       - name: Syntax and contract checks
         run: |
           node --check src/risolvi-case-core.js
@@ -47,6 +58,7 @@ jobs:
           grep -q '2026-08-28.1' worker.js
           git diff --check
       - name: Publish tested RISOLVI V7
+        if: github.event_name != 'pull_request'
         run: |
           if git diff --quiet; then
             echo 'No migration changes to publish'
