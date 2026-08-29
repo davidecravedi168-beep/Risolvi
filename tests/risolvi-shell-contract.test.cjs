@@ -8,6 +8,7 @@ const worker=fs.readFileSync('worker.js','utf8');
 // Battery/performance regression: never return to unconditional 3-second polling.
 assert(!intel.includes('setInterval(queueRender,3000)'));
 assert(intel.includes("document.visibilityState==='visible'"));
+assert(intel.includes("window.addEventListener('focus',queueRender)"));
 assert(intel.includes("risolvi:intelligence-refresh"));
 
 // Product shell and Worker must both contain the V7 intelligence contract.
