@@ -40,5 +40,11 @@ const obs=new MutationObserver(muts=>{
 });
 document.addEventListener('DOMContentLoaded',()=>{obs.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});render()});
 window.addEventListener('storage',queueRender);
-setInterval(queueRender,3000);
+window.addEventListener('focus',queueRender);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')queueRender()});
+document.addEventListener('risolvi:intelligence-refresh',queueRender);
+// Fallback only: normal app mutations already trigger immediate renders. The old 3s
+// polling kept every open tab active unnecessarily; 30s visible-only is enough to
+// recover from state changes that produce no DOM mutation while preserving battery.
+setInterval(()=>{if(document.visibilityState==='visible')queueRender()},30000);
 })();
