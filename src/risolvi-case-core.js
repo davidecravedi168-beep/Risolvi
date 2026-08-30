@@ -9,14 +9,18 @@ const EVIDENCE={
  purchase:['Ordine / scontrino / fattura','Identità del venditore','Tracking o foto/video del problema','Messaggi già scambiati con il venditore'],
  charge:['Fattura o prova dell’addebito','Contratto / condizioni applicabili','Disdetta o comunicazione precedente se rilevante','Reclamo e risposta ricevuta'],
  cancel:['Contratto / condizioni','Data di rinnovo o preavviso','Prova dell’invio della disdetta','Fattura successiva / conferma cessazione'],
+ energy:['Fatture contestate e periodo di consumo','Contratto / offerta e codice cliente o POD/PDR se rilevante','Letture / autoletture o dati del contatore se rilevanti','Reclamo scritto e risposta del venditore o gestore'],
+ telco:['Fattura o addebito contestato','Contratto / offerta e codice cliente','Prova di disdetta, migrazione o segnalazione guasto se rilevante','Reclamo scritto e risposta dell’operatore'],
  generic:['Controparte identificata','Documento principale','Data del fatto','Importo e risultato richiesto']
 };
 function evidenceFor(type){return (EVIDENCE[type]||EVIDENCE.generic).slice();}
 function ladderFor(type,source){
  const src=source&&source.name?`Canale ufficiale: ${source.name}`:'Individua il canale ufficiale competente';
- if(type==='charge')return ['Reclamo scritto alla controparte',src,'Valuta assistenza umana se la controversia resta irrisolta'];
- if(type==='flight'||type==='flight-bag')return ['Richiesta documentata al vettore',src,'Escalation/assistenza qualificata se necessaria'];
- if(type==='train')return ['Richiesta al vettore tramite procedura ufficiale',src,'Follow-up o assistenza consumatori se non si risolve'];
+ if(type==='charge')return ['Reclamo scritto alla controparte',src,'Valuta conciliazione/ADR o assistenza umana se la controversia resta irrisolta'];
+ if(type==='telco')return ['Reclamo scritto all’operatore','Conciliazione tramite il canale ufficiale competente (es. ConciliaWeb/CORECOM quando applicabile)','Revisione umana se il caso resta irrisolto o complesso'];
+ if(type==='energy')return ['Reclamo scritto al venditore o gestore','Servizio di conciliazione/ADR del settore energia quando applicabile','Revisione umana se il caso resta irrisolto o complesso'];
+ if(type==='flight'||type==='flight-bag')return ['Richiesta documentata al vettore',src,'Escalation/ADR o assistenza qualificata se necessaria'];
+ if(type==='train')return ['Richiesta al vettore tramite procedura ufficiale',src,'Follow-up, conciliazione o assistenza consumatori se non si risolve'];
  if(type==='purchase')return ['Richiesta scritta al venditore',src,'ADR/assistenza consumatori o professionale se necessario'];
  if(type==='cancel')return ['Disdetta tracciabile secondo contratto','Verifica conferma e fattura successiva','Escalation di settore o assistenza se la cessazione non viene recepita'];
  return ['Raccogli i fatti minimi','Individua procedura e fonte ufficiale','Passa a revisione umana se il caso resta ambiguo'];
@@ -31,7 +35,7 @@ function assessAnalysis(a={}){
  const humanReview=complexity>=70||completeness<35||txt(a.type)==='generic';
  const evidence=evidenceFor(a.type);
  const next=(Array.isArray(a.steps)&&a.steps[0])?{title:txt(a.steps[0].title),text:txt(a.steps[0].text)}:{title:'Completa i dati mancanti',text:'Prima di procedere raccogli documento, data, controparte e obiettivo.'};
- return {readiness,label,priority,priorityLabel:priorityLabel(priority),completeness,urgency,complexity,humanReview,evidence,next,ladder:ladderFor(a.type,a.source),source:a.source||null,rulesUpdated:'2026-08-29',readinessFormula:'0,72×completezza + 0,20×(100−complessità) + 8 se esiste una fonte identificata',priorityFormula:'0,45×urgenza + 0,35×gap di readiness + 0,20×complessità',trust:'La readiness misura la preparazione procedurale della pratica, non la probabilità di successo.'};
+ return {readiness,label,priority,priorityLabel:priorityLabel(priority),completeness,urgency,complexity,humanReview,evidence,next,ladder:ladderFor(a.type,a.source),source:a.source||null,rulesUpdated:'2026-08-31',readinessFormula:'0,72×completezza + 0,20×(100−complessità) + 8 se esiste una fonte identificata',priorityFormula:'0,45×urgenza + 0,35×gap di readiness + 0,20×complessità',trust:'La readiness misura la preparazione procedurale della pratica, non la probabilità di successo.'};
 }
 function assessCase(c={}){
  const steps=Array.isArray(c.steps)?c.steps:[],done=steps.filter(s=>s.done).length;
