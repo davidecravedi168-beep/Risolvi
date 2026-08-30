@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-const VERSION='RISOLVI-SIMPLE-UI-13.0';
+const VERSION='RISOLVI-SIMPLE-UI-13.1';
 const q=(s,r=document)=>r.querySelector(s);
 const qa=(s,r=document)=>[...r.querySelectorAll(s)];
 const txt=(el,v)=>{if(el&&el.textContent!==v)el.textContent=v};
@@ -10,7 +10,7 @@ function injectCss(){
  const s=document.createElement('style');
  s.id='risSimpleV13Css';
  s.textContent=`
-html.ris-simple-v13 .app{max-width:680px;padding-left:14px;padding-right:14px}
+html.ris-simple-v13 .app{max-width:680px;padding-left:14px;padding-right:14px;padding-bottom:calc(112px + env(safe-area-inset-bottom))}
 html.ris-simple-v13 .topbar{padding-top:7px}
 html.ris-simple-v13 .topactions .iconbtn:nth-child(n+3){display:none!important}
 html.ris-simple-v13 .hero{padding:20px 3px 13px}
@@ -47,7 +47,18 @@ html.ris-simple-v13 .risSimpleHow summary::-webkit-details-marker{display:none}
 html.ris-simple-v13 .risSimpleHow[open] summary{border-bottom:1px solid var(--line)}
 html.ris-simple-v13 .risSimpleHow div{padding:11px 13px;font-size:11px;line-height:1.55;color:var(--muted)}
 html.ris-simple-v13 .risSimpleHow b{color:var(--text)}
-html.ris-simple-v13 .bottom .nav button{font-size:10px;line-height:1.35}
+html.ris-simple-v13 .bottom{position:fixed;left:0;right:0;bottom:0;z-index:80;padding:8px 12px calc(8px + env(safe-area-inset-bottom));background:linear-gradient(180deg,transparent,rgba(6,16,27,.76) 35%,rgba(6,16,27,.96));pointer-events:none}
+html[data-theme="light"].ris-simple-v13 .bottom{background:linear-gradient(180deg,transparent,rgba(243,247,251,.78) 35%,rgba(243,247,251,.97))}
+html.ris-simple-v13 .bottom .nav{pointer-events:auto;max-width:620px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding:6px;border:1px solid rgba(126,176,255,.16);border-radius:22px;background:linear-gradient(145deg,rgba(18,34,54,.94),rgba(9,19,32,.94));box-shadow:0 18px 54px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.05);backdrop-filter:blur(24px) saturate(140%);-webkit-backdrop-filter:blur(24px) saturate(140%)}
+html[data-theme="light"].ris-simple-v13 .bottom .nav{background:rgba(255,255,255,.88);border-color:rgba(49,80,113,.16);box-shadow:0 16px 40px rgba(31,54,83,.14),inset 0 1px 0 rgba(255,255,255,.8)}
+html.ris-simple-v13 .bottom .nav button{position:relative;border:0;background:transparent;color:var(--muted);border-radius:16px;min-height:58px;padding:7px 4px 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:9px;line-height:1;font-weight:850;letter-spacing:.01em;transition:transform .16s ease,background .16s ease,color .16s ease,box-shadow .16s ease}
+html.ris-simple-v13 .bottom .nav button:active{transform:scale(.96)}
+html.ris-simple-v13 .bottom .nav button.active{color:#f7fbff;background:linear-gradient(145deg,rgba(126,176,255,.19),rgba(97,230,168,.09));box-shadow:inset 0 0 0 1px rgba(126,176,255,.16),0 8px 22px rgba(0,0,0,.16)}
+html[data-theme="light"].ris-simple-v13 .bottom .nav button.active{color:#102035;background:linear-gradient(145deg,rgba(126,176,255,.16),rgba(97,230,168,.11));box-shadow:inset 0 0 0 1px rgba(49,80,113,.1),0 6px 18px rgba(31,54,83,.08)}
+html.ris-simple-v13 .bottom .nav button.active:after{content:"";position:absolute;bottom:3px;width:14px;height:2px;border-radius:999px;background:linear-gradient(90deg,var(--green),var(--blue));box-shadow:0 0 12px rgba(97,230,168,.3)}
+html.ris-simple-v13 .risNavIcon{width:22px;height:22px;display:grid;place-items:center}
+html.ris-simple-v13 .risNavIcon svg{width:21px;height:21px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+html.ris-simple-v13 .risNavLabel{display:block;white-space:nowrap}
 html.ris-simple-v13 #page-flow .risSimpleResult .radar,
 html.ris-simple-v13 #page-flow .risSimpleResult .explain,
 html.ris-simple-v13 #page-flow .risSimpleResult .readrow{display:none!important}
@@ -81,6 +92,9 @@ html.ris-simple-v13 #page-protect .hero h1{font-size:34px}
  html.ris-simple-v13 #page-home .grid{grid-template-columns:1fr 1fr}
  html.ris-simple-v13 #page-home .tile{min-height:80px;padding:11px}
  html.ris-simple-v13 #page-home .tile b{font-size:12px}
+ html.ris-simple-v13 .bottom{padding-left:9px;padding-right:9px}
+ html.ris-simple-v13 .bottom .nav{border-radius:20px;padding:5px;gap:3px}
+ html.ris-simple-v13 .bottom .nav button{min-height:56px;border-radius:15px;font-size:8.5px}
 }
 `;
  document.head.appendChild(s);
@@ -111,11 +125,25 @@ function simplifyHome(){
  }
 }
 
+function navIcon(name){
+ const icons={
+  home:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.5 12 3.8l8.5 6.7"/><path d="M5.5 9.7V20h13V9.7"/><path d="M9.5 20v-6h5v6"/></svg>',
+  cases:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M8 5V3.5h8V5M8 10h8M8 14h5"/></svg>',
+  protect:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2M7.5 4.5 5 7M16.5 4.5 19 7"/></svg>',
+  info:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 10.5V17M12 7.2h.01"/></svg>'
+ };
+ return icons[name]||icons.home;
+}
+function setNavButton(id,name,label){
+ const b=q(id);if(!b)return;
+ b.innerHTML=`<span class="risNavIcon">${navIcon(name)}</span><span class="risNavLabel">${label}</span>`;
+ b.setAttribute('aria-label',label);
+}
 function simplifyNavigation(){
- const protect=q('#nav-protect');if(protect)protect.innerHTML='◷<br>Scadenze';
- const info=q('#nav-info');if(info)info.innerHTML='ⓘ<br>Info';
- const cases=q('#nav-cases');if(cases)cases.innerHTML='▣<br>Pratiche';
- const home=q('#nav-home');if(home)home.innerHTML='⌂<br>Risolvi';
+ setNavButton('#nav-home','home','Risolvi');
+ setNavButton('#nav-cases','cases','Pratiche');
+ setNavButton('#nav-protect','protect','Scadenze');
+ setNavButton('#nav-info','info','Info');
 }
 
 function simplifyPages(){
