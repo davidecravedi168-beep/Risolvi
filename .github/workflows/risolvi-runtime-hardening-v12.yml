@@ -1,0 +1,42 @@
+name: RISOLVI Runtime Hardening V12
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/risolvi-operations-governance-v9.js'
+      - 'src/risolvi-resolution-command-v11.js'
+      - 'scripts/harden_runtime_v12.py'
+      - 'tests/risolvi-runtime-hardening.test.cjs'
+      - '.github/workflows/risolvi-runtime-hardening-v12.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  harden-test-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Harden static runtime
+        run: python scripts/harden_runtime_v12.py
+      - name: Regression and runtime tests
+        run: |
+          node tests/risolvi-case-core.test.cjs
+          node tests/risolvi-resolution-command.test.cjs
+          node tests/risolvi-shell-contract.test.cjs
+          node tests/risolvi-runtime-hardening.test.cjs
+          git diff --check
+      - name: Persist hardened shell
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html worker.js
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'RISOLVI V12 — harden inline runtime and shell parity'
+          git pull --rebase origin main
+          git push origin HEAD:main
