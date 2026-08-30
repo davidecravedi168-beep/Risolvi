@@ -13,7 +13,54 @@ const EVIDENCE={
  telco:['Fattura o addebito contestato','Contratto / offerta e codice cliente','Prova di disdetta, migrazione o segnalazione guasto se rilevante','Reclamo scritto e risposta dell’operatore'],
  generic:['Controparte identificata','Documento principale','Data del fatto','Importo e risultato richiesto']
 };
+const COMMON_TACTICS=[
+ 'Usa un canale scritto e tracciabile; le telefonate possono aiutare, ma non devono essere l’unica prova.',
+ 'Chiedi un risultato preciso: rimborso, storno, cessazione, ripristino o risposta scritta, evitando richieste vaghe.',
+ 'Mantieni una cronologia corta con date, importi, protocolli e documenti: una pratica leggibile è più facile da gestire ed escalare.',
+ 'Conserva originali e ricevute; invia copie quando possibile e annota il numero pratica/protocollo.',
+ 'Prima di escalare, verifica che il passaggio precedente e i documenti richiesti siano realmente completati.'
+];
+const PRO_TACTICS={
+ train:[
+  'Fissa l’orario di arrivo effettivo alla destinazione e il tipo di biglietto/servizio prima di stimare l’indennizzo.',
+  'Se il primo reclamo non si chiude, porta nella fase successiva biglietto, importo, ritardo e risposta del vettore già ordinati in un unico dossier.'
+ ],
+ flight:[
+  'Separa sempre compensazione, rimborso/riprotezione e spese di assistenza: sono richieste diverse e possono avere prove diverse.',
+  'Registra causa comunicata dalla compagnia, orario finale di arrivo, prenotazione e carte d’imbarco prima di contestare l’esito.',
+  'Se la compagnia rifiuta o tace, conserva il rifiuto o la prova del silenzio per l’eventuale escalation ADR/legale.'
+ ],
+ 'flight-bag':[
+  'Tratta PIR/tag bagaglio come prova operativa centrale quando disponibile e separa perdita, ritardo e danneggiamento.',
+  'Conserva ricevute delle spese essenziali e foto del danno; non mischiare spese documentate e stime non provate.'
+ ],
+ purchase:[
+  'Definisci subito il rimedio richiesto e il motivo: mancata consegna, difetto, reso, garanzia o altro non vanno confusi.',
+  'Preserva tracking, foto/video, ordine e conversazione con il venditore; usa una richiesta breve con fatti numerati.'
+ ],
+ charge:[
+  'Collega ogni addebito contestato a contratto, fattura e precedente comunicazione; evita di contestare più voci senza distinguerle.',
+  'Indica importo esatto e periodo e chiedi esplicitamente storno/rimborso o spiegazione documentata.'
+ ],
+ cancel:[
+  'La prova chiave è spesso l’invio della disdetta e la sua data: conserva ricevuta, protocollo e condizioni di preavviso.',
+  'Controlla la fattura successiva e la conferma di cessazione; una pratica non è chiusa solo perché la disdetta è stata inviata.'
+ ],
+ energy:[
+  'Allinea fattura contestata, periodo, letture e codice fornitura; separa errore di consumo, tariffa, conguaglio e problema contrattuale.',
+  'Prima della conciliazione prepara reclamo scritto, risposta e documenti obbligatori in un unico fascicolo per evitare integrazioni o ritardi.'
+ ],
+ telco:[
+  'Conserva protocollo di guasto/disdetta/migrazione, date di disservizio e fatture: sono i punti di ancoraggio della controversia.',
+  'Su ConciliaWeb usa prima una proposta chiara e quantificata quando possibile; se non basta, porta la stessa cronologia nella conciliazione.'
+ ],
+ generic:[
+  'Prima di qualsiasi escalation identifica controparte, data, importo, obiettivo e documento principale.',
+  'Se la materia non è riconosciuta con sufficiente precisione, passa a revisione umana invece di forzare un percorso standard.'
+ ]
+};
 function evidenceFor(type){return (EVIDENCE[type]||EVIDENCE.generic).slice();}
+function tacticsFor(type){return [...COMMON_TACTICS,...(PRO_TACTICS[type]||PRO_TACTICS.generic)].slice();}
 function ladderFor(type,source){
  const src=source&&source.name?`Canale ufficiale: ${source.name}`:'Individua il canale ufficiale competente';
  if(type==='charge')return ['Reclamo scritto alla controparte',src,'Valuta conciliazione/ADR o assistenza umana se la controversia resta irrisolta'];
@@ -35,7 +82,7 @@ function assessAnalysis(a={}){
  const humanReview=complexity>=70||completeness<35||txt(a.type)==='generic';
  const evidence=evidenceFor(a.type);
  const next=(Array.isArray(a.steps)&&a.steps[0])?{title:txt(a.steps[0].title),text:txt(a.steps[0].text)}:{title:'Completa i dati mancanti',text:'Prima di procedere raccogli documento, data, controparte e obiettivo.'};
- return {readiness,label,priority,priorityLabel:priorityLabel(priority),completeness,urgency,complexity,humanReview,evidence,next,ladder:ladderFor(a.type,a.source),source:a.source||null,rulesUpdated:'2026-08-31',readinessFormula:'0,72×completezza + 0,20×(100−complessità) + 8 se esiste una fonte identificata',priorityFormula:'0,45×urgenza + 0,35×gap di readiness + 0,20×complessità',trust:'La readiness misura la preparazione procedurale della pratica, non la probabilità di successo.'};
+ return {readiness,label,priority,priorityLabel:priorityLabel(priority),completeness,urgency,complexity,humanReview,evidence,tactics:tacticsFor(a.type),next,ladder:ladderFor(a.type,a.source),source:a.source||null,rulesUpdated:'2026-08-31',readinessFormula:'0,72×completezza + 0,20×(100−complessità) + 8 se esiste una fonte identificata',priorityFormula:'0,45×urgenza + 0,35×gap di readiness + 0,20×complessità',trust:'La readiness misura la preparazione procedurale della pratica, non la probabilità di successo.'};
 }
 function assessCase(c={}){
  const steps=Array.isArray(c.steps)?c.steps:[],done=steps.filter(s=>s.done).length;
@@ -43,8 +90,8 @@ function assessCase(c={}){
  const hasSource=!!(c.source&&c.source.name),hasDraft=!!txt(c.draft),hasAmount=Number(c.amount)>0;
  const readiness=clamp(taskCompletion*.55+(hasSource?18:0)+(hasDraft?17:0)+(hasAmount?10:0));
  const next=steps.find(s=>!s.done);
- return {id:c.id,title:txt(c.title)||'Pratica',readiness,label:readiness>=75?'PRONTA':readiness>=50?'PARZIALE':'INCOMPLETA',next:next?{title:txt(next.title),text:txt(next.text)}:{title:'Follow-up',text:'Tutte le attività registrate risultano completate: verifica risposta/esito e aggiorna lo stato.'},status:txt(c.status),humanReview:txt(c.type)==='generic'};
+ return {id:c.id,title:txt(c.title)||'Pratica',readiness,label:readiness>=75?'PRONTA':readiness>=50?'PARZIALE':'INCOMPLETA',next:next?{title:txt(next.title),text:txt(next.text)}:{title:'Follow-up',text:'Tutte le attività registrate risultano completate: verifica risposta/esito e aggiorna lo stato.'},status:txt(c.status),humanReview:txt(c.type)==='generic',tactics:tacticsFor(c.type)};
 }
 function summarizeCases(cases=[]){const items=cases.map(assessCase);return {total:items.length,open:items.filter(x=>!['Risolta','closed','solved'].includes(x.status)).length,lowReadiness:items.filter(x=>x.readiness<50).length,ready:items.filter(x=>x.readiness>=75).length,items:items.sort((a,b)=>a.readiness-b.readiness)};}
-return {assessAnalysis,assessCase,summarizeCases,evidenceFor,ladderFor};
+return {assessAnalysis,assessCase,summarizeCases,evidenceFor,tacticsFor,ladderFor};
 });
