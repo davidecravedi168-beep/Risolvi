@@ -1,0 +1,49 @@
+name: RISOLVI Resolution Command V11
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/risolvi-case-core.js'
+      - 'src/risolvi-resolution-command-v11.js'
+      - 'scripts/upgrade_resolution_command_v11.py'
+      - 'tests/risolvi-resolution-command.test.cjs'
+      - '.github/workflows/risolvi-resolution-command-v11.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  validate-wire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Syntax and core tests
+        run: |
+          node --check src/risolvi-case-core.js
+          node --check src/risolvi-resolution-command-v11.js
+          node tests/risolvi-case-core.test.cjs
+          node tests/risolvi-resolution-command.test.cjs
+      - name: Wire V11 into privacy-first shell
+        run: python scripts/upgrade_resolution_command_v11.py
+      - name: Shell parity and regression
+        run: |
+          node tests/risolvi-shell-contract.test.cjs
+          grep -q 'RISOLVI_RESOLUTION_COMMAND_V11_BEGIN' index.html
+          grep -q 'RISOLVI-RESOLUTION-COMMAND-11.0' index.html
+          grep -q 'RISOLVI_RESOLUTION_COMMAND_V11_BEGIN' worker.js
+          grep -q 'Escalation Lock' COMPETITOR_BENCHMARK_V11.md
+          git diff --check
+      - name: Persist generated shell parity
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html worker.js
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'RISOLVI V11 — wire Resolution Command into shell and Worker'
+          git pull --rebase origin main
+          git push origin HEAD:main
