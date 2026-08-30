@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="format-detection" content="telephone=no">
-<title>RISOLVI V8 — Premium Case Intelligence</title>
+<title>RISOLVI V11 — Resolution Command</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/risolvi-icon-192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/risolvi-icon-180.png">
@@ -978,7 +978,23 @@ setInterval(()=>{if(document.visibilityState==='visible')queueRender()},30000);
 })();
 
 </script>
-<script src="src/risolvi-operations-governance-v9.js?v=9.0"></script>
+<!-- RISOLVI_OPERATIONS_GOVERNANCE_V9_INLINE_BEGIN -->
+<script id="risolvi-operations-governance-v9">
+(()=>{
+'use strict';
+const KEY='risolvi:v9:audit-snapshots';
+const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+function state(){try{return App.getIntelligenceState()}catch{return null}}
+function load(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch{return[]}}
+function save(x){localStorage.setItem(KEY,JSON.stringify(x.slice(-200)))}
+function snapshot(){const x=state(),cases=x?.state?.cases||[];return {at:new Date().toISOString(),total:cases.length,open:cases.filter(c=>String(c.status||'').toLowerCase()!=='closed').length,needsReview:cases.filter(c=>{try{return RisolviCaseCore.assessAnalysis(c).humanReview}catch{return false}}).length,lowReadiness:cases.filter(c=>{try{return RisolviCaseCore.assessAnalysis(c).readiness<60}catch{return false}}).length}}
+function record(){const s=snapshot(),h=load(),last=h[h.length-1];if(!last||last.total!==s.total||last.open!==s.open||last.needsReview!==s.needsReview||last.lowReadiness!==s.lowReadiness){h.push(s);save(h)}return s}
+function css(){if(document.getElementById('risV9css'))return;const s=document.createElement('style');s.id='risV9css';s.textContent='.risV9grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.risV9box{border:1px solid var(--line);background:var(--card2);border-radius:14px;padding:11px}.risV9box b{display:block;font-size:17px}.risV9box span{font-size:8px;color:var(--muted)}.risV9note{margin-top:9px;border:1px solid var(--line);border-radius:12px;padding:10px;color:var(--muted);font-size:9px;line-height:1.5}@media(max-width:650px){.risV9grid{grid-template-columns:repeat(2,1fr)}}';document.head.appendChild(s)}
+function render(){css();const page=document.getElementById('page-cases');if(!page)return;let c=document.getElementById('risV9');if(!c){c=document.createElement('section');c.id='risV9';c.className='ci-wrap';c.innerHTML='<div class="ci-card"><div class="ci-kicker">OPERATIONS GOVERNANCE · V9</div><div class="ci-title">Audit, SLA risk e human-review control</div><div id="risV9grid" class="risV9grid"></div><div class="risV9note">Il registro è locale e serve a rendere visibili cambiamenti e carico operativo. Readiness e priorità restano indicatori di preparazione/urgenza, non probabilità di successo.</div></div>';const hero=page.querySelector('.hero');hero?hero.insertAdjacentElement('afterend',c):page.prepend(c)}const s=record(),h=load(),sla=s.lowReadiness+s.needsReview;document.getElementById('risV9grid').innerHTML=`<div class="risV9box"><b>${s.open}</b><span>CASI APERTI</span></div><div class="risV9box"><b>${s.lowReadiness}</b><span>READINESS &lt; 60</span></div><div class="risV9box"><b>${s.needsReview}</b><span>HUMAN REVIEW</span></div><div class="risV9box"><b>${sla?'ATTENZIONE':'OK'}</b><span>SLA / GOVERNANCE</span></div><div class="risV9box"><b>${h.length}</b><span>AUDIT SNAPSHOTS</span></div>`}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(render,0));else setTimeout(render,0);document.addEventListener('risolvi:intelligence-refresh',render);setInterval(()=>{if(!document.hidden)render()},30000);
+})();
+</script>
+<!-- RISOLVI_OPERATIONS_GOVERNANCE_V9_INLINE_END -->
 <!-- RISOLVI_RESOLUTION_COMMAND_V11_BEGIN -->
 <script id="risolvi-resolution-command-v11">
 (function(root,factory){
