@@ -8,6 +8,13 @@ on:
       - 'scripts/harden_runtime_v12.py'
       - 'tests/risolvi-runtime-hardening.test.cjs'
       - '.github/workflows/risolvi-runtime-hardening-v12.yml'
+  pull_request:
+    paths:
+      - 'src/risolvi-operations-governance-v9.js'
+      - 'src/risolvi-resolution-command-v11.js'
+      - 'scripts/harden_runtime_v12.py'
+      - 'tests/risolvi-runtime-hardening.test.cjs'
+      - '.github/workflows/risolvi-runtime-hardening-v12.yml'
   workflow_dispatch:
 permissions:
   contents: write
@@ -32,6 +39,7 @@ jobs:
           node tests/risolvi-runtime-hardening.test.cjs
           git diff --check
       - name: Persist hardened shell
+        if: github.event_name == 'push'
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'

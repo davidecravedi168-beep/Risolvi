@@ -7,9 +7,10 @@ assert(index.includes("script-src 'unsafe-inline'"));
 assert(!index.includes('<script src="src/risolvi-operations-governance-v9.js?v=9.0"></script>'));
 assert(index.includes('RISOLVI_OPERATIONS_GOVERNANCE_V9_INLINE_BEGIN'));
 assert(index.includes('id="risolvi-operations-governance-v9"'));
-assert(index.includes('<title>RISOLVI V11 — Resolution Command</title>'));
+assert(index.includes('<title>RISOLVI — Il prossimo passo</title>'));
 assert(index.includes('RISOLVI_RESOLUTION_COMMAND_V11_BEGIN'));
-assert(index.includes('RISOLVI-RESOLUTION-COMMAND-11.0'));
+assert(index.includes('RISOLVI-RESOLUTION-COMMAND-11.1'));
+assert(index.includes('COPIA RECLAMO PRONTO'));
 
 const prefix='const INDEX_HTML = ';
 const pos=worker.indexOf(prefix);
