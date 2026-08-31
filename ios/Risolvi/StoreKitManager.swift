@@ -1,6 +1,6 @@
 import Foundation
+import Combine
 import StoreKit
-import SwiftUI
 
 enum RisolviStoreError: LocalizedError {
     case failedVerification
@@ -25,7 +25,7 @@ final class StoreKitManager: ObservableObject {
     @Published private(set) var pendingDelivery = false
     @Published private(set) var deliveryToken = UUID()
 
-    private var pendingTransaction: Transaction?
+    private var pendingTransaction: StoreKit.Transaction?
     private var updatesTask: Task<Void, Never>?
 
     init() {
@@ -146,7 +146,7 @@ final class StoreKitManager: ObservableObject {
         statusMessage = "Acquisto verificato. La pratica verrà consegnata appena la pagina RISOLVI è pronta."
     }
 
-    private func queueForDelivery(_ transaction: Transaction) {
+    private func queueForDelivery(_ transaction: StoreKit.Transaction) {
         pendingTransaction = transaction
         pendingDelivery = true
         deliveryToken = UUID()
@@ -155,7 +155,7 @@ final class StoreKitManager: ObservableObject {
     }
 
     private func recoverUnfinishedPractice() async {
-        for await result in Transaction.unfinished {
+        for await result in StoreKit.Transaction.unfinished {
             do {
                 let transaction = try verified(result)
                 guard transaction.productID == Self.practiceProductID else { continue }
@@ -169,7 +169,7 @@ final class StoreKitManager: ObservableObject {
 
     private func observeTransactions() -> Task<Void, Never> {
         Task { [weak self] in
-            for await result in Transaction.updates {
+            for await result in StoreKit.Transaction.updates {
                 guard let self else { return }
 
                 do {
