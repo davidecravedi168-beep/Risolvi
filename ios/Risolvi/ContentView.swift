@@ -34,12 +34,13 @@ final class WebViewModel: ObservableObject {
 
 struct ContentView: View {
     @StateObject private var web = WebViewModel()
+    @StateObject private var store = StoreKitManager()
     @State private var showPrivacy = false
 
     var body: some View {
         NavigationStack {
             ZStack {
-                WebContainer(model: web)
+                WebContainer(model: web, store: store)
                     .ignoresSafeArea(edges: .bottom)
 
                 if web.loadFailed {
@@ -98,6 +99,9 @@ struct ContentView: View {
                             Label("I link esterni vengono aperti fuori dal contenitore RISOLVI.", systemImage: "safari")
                             Label("Il contenuto principale usa HTTPS.", systemImage: "lock")
                         }
+                        Section("Acquisti") {
+                            Label("Pratica Pro usa StoreKit nell'app iOS. In sviluppo è collegata a un catalogo locale di test.", systemImage: "cart.badge.checkmark")
+                        }
                         Section("Release") {
                             Text("Prima della pubblicazione commerciale devono essere definite Privacy Policy, App Privacy e URL di supporto definitivi in App Store Connect.")
                         }
@@ -111,21 +115,36 @@ struct ContentView: View {
                     }
                 }
             }
+            .sheet(isPresented: $store.isPaywallPresented) {
+                PracticePaywallView(store: store)
+            }
         }
     }
 }
 
 struct WebContainer: UIViewRepresentable {
     @ObservedObject var model: WebViewModel
+    @ObservedObject var store: StoreKitManager
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(model: model)
+        Coordinator(model: model, store: store)
     }
 
     func makeUIView(context: Context) -> WKWebView {
         let configuration = WKWebViewConfiguration()
         configuration.websiteDataStore = .default()
         configuration.defaultWebpagePreferences.allowsContentJavaScript = true
+        configuration.userContentController.add(
+            context.coordinator,
+            name: NativeStoreBridge.messageHandler
+        )
+        configuration.userContentController.addUserScript(
+            WKUserScript(
+                source: NativeStoreBridge.userScript,
+                injectionTime: .atDocumentEnd,
+                forMainFrameOnly: true
+            )
+        )
 
         let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.navigationDelegate = context.coordinator
@@ -151,17 +170,25 @@ struct WebContainer: UIViewRepresentable {
             context.coordinator.lastHomeToken = model.homeToken
             webView.load(URLRequest(url: model.homeURL, cachePolicy: .reloadRevalidatingCacheData, timeoutInterval: 20))
         }
+
+        Task { @MainActor in
+            context.coordinator.deliverPendingPurchaseIfPossible()
+        }
     }
 
-    final class Coordinator: NSObject, WKNavigationDelegate {
+    final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         let model: WebViewModel
+        let store: StoreKitManager
         weak var webView: WKWebView?
         var lastReloadToken: UUID
         var lastHomeToken: UUID
         private var didInitialLoad = false
+        private var deliveredToken: UUID?
+        private var deliveryInFlightToken: UUID?
 
-        init(model: WebViewModel) {
+        init(model: WebViewModel, store: StoreKitManager) {
             self.model = model
+            self.store = store
             self.lastReloadToken = model.reloadToken
             self.lastHomeToken = model.homeToken
         }
@@ -188,6 +215,10 @@ struct WebContainer: UIViewRepresentable {
             model.loadFailed = false
             model.currentURL = webView.url ?? model.homeURL
             webView.scrollView.refreshControl?.endRefreshing()
+
+            Task { @MainActor [weak self] in
+                self?.deliverPendingPurchaseIfPossible()
+            }
         }
 
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
@@ -223,6 +254,46 @@ struct WebContainer: UIViewRepresentable {
             }
 
             decisionHandler(.allow)
+        }
+
+        func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+            guard message.name == NativeStoreBridge.messageHandler,
+                  let body = message.body as? [String: Any],
+                  body["action"] as? String == "purchasePractice" else {
+                return
+            }
+
+            Task { @MainActor [weak self] in
+                self?.store.presentPracticePaywall()
+            }
+        }
+
+        @MainActor
+        func deliverPendingPurchaseIfPossible() {
+            guard store.pendingDelivery,
+                  deliveredToken != store.deliveryToken,
+                  deliveryInFlightToken != store.deliveryToken,
+                  let webView else {
+                return
+            }
+
+            let token = store.deliveryToken
+            deliveryInFlightToken = token
+
+            let javascript = "typeof window.__risolviStoreKitComplete === 'function' ? window.__risolviStoreKitComplete() : 'bridge-not-ready'"
+            webView.evaluateJavaScript(javascript) { [weak self] result, error in
+                Task { @MainActor in
+                    guard let self else { return }
+                    self.deliveryInFlightToken = nil
+
+                    if error == nil, result as? String == "delivered" {
+                        self.deliveredToken = token
+                        await self.store.finishPendingDelivery()
+                    } else {
+                        self.store.markDeliveryPending()
+                    }
+                }
+            }
         }
     }
 }
