@@ -18,12 +18,36 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Validate StoreKit test catalog
+        working-directory: ios
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          data = json.loads(Path('Risolvi.storekit').read_text())
+          products = data.get('products', [])
+          assert len(products) == 1, 'Expected exactly one StoreKit test product'
+          product = products[0]
+          assert product['productID'] == 'it.risolvi.practice.pro'
+          assert product['type'] == 'Consumable'
+          assert product['displayPrice'] == '6.99'
+          assert data.get('version', {}).get('major', 0) >= 2
+          print('StoreKit catalog: OK')
+          PY
+
       - name: Install XcodeGen
         run: brew install xcodegen
 
       - name: Generate Xcode project
         working-directory: ios
         run: xcodegen generate
+
+      - name: Verify StoreKit scheme wiring
+        working-directory: ios
+        run: |
+          grep -q 'StoreKitConfigurationFileReference' Risolvi.xcodeproj/xcshareddata/xcschemes/Risolvi.xcscheme
+          grep -q 'Risolvi.storekit' Risolvi.xcodeproj/xcshareddata/xcschemes/Risolvi.xcscheme
 
       - name: Build for iOS Simulator
         working-directory: ios
