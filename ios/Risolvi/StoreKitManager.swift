@@ -25,6 +25,11 @@ final class StoreKitManager: ObservableObject {
     @Published private(set) var pendingDelivery = false
     @Published private(set) var deliveryToken = UUID()
 
+    @Published private(set) var practiceTitle = "Pratica Pro"
+    @Published private(set) var practiceCategory: String?
+    @Published private(set) var practiceAmount: Double?
+    @Published private(set) var practiceCompleteness: Int?
+
     private var pendingTransaction: StoreKit.Transaction?
     private var updatesTask: Task<Void, Never>?
 
@@ -49,7 +54,20 @@ final class StoreKitManager: ObservableObject {
         practiceProduct?.displayName ?? "Pratica Pro"
     }
 
-    func presentPracticePaywall() {
+    func presentPracticePaywall(
+        title: String? = nil,
+        category: String? = nil,
+        amount: Double? = nil,
+        completeness: Int? = nil
+    ) {
+        let cleanTitle = title?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let cleanCategory = category?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+
+        practiceTitle = cleanTitle.isEmpty ? "Pratica Pro" : String(cleanTitle.prefix(180))
+        practiceCategory = cleanCategory.isEmpty ? nil : String(cleanCategory.prefix(40))
+        practiceAmount = amount.flatMap { $0 > 0 && $0 < 10_000_000 ? $0 : nil }
+        practiceCompleteness = completeness.map { min(100, max(0, $0)) }
+
         statusMessage = nil
         isPaywallPresented = true
 

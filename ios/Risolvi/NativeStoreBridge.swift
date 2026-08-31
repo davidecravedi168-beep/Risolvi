@@ -12,6 +12,16 @@ enum NativeStoreBridge {
         return window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.risolviStore;
       }
 
+      function currentAnalysis() {
+        try {
+          if (!window.App || typeof window.App.getIntelligenceState !== 'function') return null;
+          var snapshot = window.App.getIntelligenceState();
+          return snapshot && snapshot.currentAnalysis ? snapshot.currentAnalysis : null;
+        } catch (_) {
+          return null;
+        }
+      }
+
       function relabelCheckout() {
         var buttons = document.querySelectorAll('.payrow .paybtn');
         if (buttons.length) {
@@ -25,9 +35,12 @@ enum NativeStoreBridge {
           });
         }
 
+        var price = document.getElementById('checkoutPrice');
+        if (price) price.textContent = '€6,99';
+
         var note = document.querySelector('#checkoutModal .micro');
         if (note) {
-          note.textContent = 'App iOS: acquisto gestito da StoreKit. In sviluppo usa il catalogo locale di test.';
+          note.textContent = 'App iOS: acquisto una tantum gestito da StoreKit. In sviluppo usa il catalogo locale di test.';
         }
       }
 
@@ -45,9 +58,14 @@ enum NativeStoreBridge {
         window.App.pay = function(method) {
           var handler = nativeHandler();
           if (handler) {
+            var analysis = currentAnalysis() || {};
             handler.postMessage({
               action: 'purchasePractice',
-              method: String(method || '')
+              method: String(method || ''),
+              title: String(analysis.title || ''),
+              category: String(analysis.type || ''),
+              amount: Number(analysis.amount || 0),
+              completeness: Number(analysis.completeness || 0)
             });
             return;
           }

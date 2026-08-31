@@ -263,8 +263,18 @@ struct WebContainer: UIViewRepresentable {
                 return
             }
 
+            let title = body["title"] as? String
+            let category = body["category"] as? String
+            let amount = (body["amount"] as? NSNumber)?.doubleValue
+            let completeness = (body["completeness"] as? NSNumber)?.intValue
+
             Task { @MainActor [weak self] in
-                self?.store.presentPracticePaywall()
+                self?.store.presentPracticePaywall(
+                    title: title,
+                    category: category,
+                    amount: amount,
+                    completeness: completeness
+                )
             }
         }
 
